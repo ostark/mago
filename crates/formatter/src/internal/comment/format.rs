@@ -108,6 +108,33 @@ impl<'arena> FormatterState<'_, 'arena> {
         })
     }
 
+    pub(crate) fn has_leading_docblock_comment(&self, range: Span) -> bool {
+        let candidate_partition_idx =
+            self.all_comments.partition_point(|trivia| trivia.span.start.offset < range.start_offset());
+        if candidate_partition_idx == 0 {
+            return false;
+        }
+
+        let mut covered_from = range.start_offset();
+
+        for trivia in self.all_comments[..candidate_partition_idx].iter().rev() {
+            let trivia_end = trivia.span.end_offset();
+            let gap_slice = self.source_text.as_bytes().get(trivia_end as usize..covered_from as usize).unwrap_or(&[]);
+
+            if !gap_slice.iter().all(u8::is_ascii_whitespace) {
+                return false;
+            }
+
+            if trivia.kind.is_docblock() {
+                return true;
+            }
+
+            covered_from = trivia.span.start_offset();
+        }
+
+        false
+    }
+
     pub(crate) fn has_comment(&self, range: Span, flags: CommentFlags) -> bool {
         self.has_comment_with_filter(range, flags, |_| true)
     }
@@ -551,6 +578,42 @@ impl<'arena> FormatterState<'_, 'arena> {
     #[must_use]
     fn print_comment(&self, comment: Comment) -> Document<'arena> {
         let content = &self.source_text[comment.start as usize..comment.end as usize];
+
+        // PHPDoc reformatting: parse and reconstruct multi-line docblocks
+        if comment.is_docblock && !comment.is_single_line && self.settings.phpdoc_reformat {
+            if self.get_ignore_region_for(comment.start).is_none() {
+                let span = mago_span::Span::new(
+                    self.file.id,
+                    mago_span::Position::new(comment.start),
+                    mago_span::Position::new(comment.end),
+                );
+
+                if let Some(reformatted) =
+                    super::docblock::reformat_docblock(self.arena, &self.settings, content, span)
+                {
+                    if reformatted.is_empty() {
+                        // Empty docblock — signal removal by returning empty string.
+                        // The caller will still emit it; this is the best we can do
+                        // without restructuring the comment pipeline.
+                        return Document::String("/** */");
+                    }
+
+                    // Build a Group document with hard line breaks (same as existing multiline handling)
+                    let lines = reformatted.lines().collect::<std::vec::Vec<_>>();
+                    let mut contents =
+                        bumpalo::collections::Vec::with_capacity_in(lines.len() * 2, self.arena);
+                    for (i, line) in lines.iter().enumerate() {
+                        contents.push(Document::String(self.arena.alloc_str(line)));
+                        if i < lines.len() - 1 {
+                            contents.push(Document::Line(crate::document::Line::hard()));
+                        }
+                    }
+
+                    return Document::Group(crate::document::Group::new(contents));
+                }
+                // Fall through to existing formatting on parse failure
+            }
+        }
 
         if comment.is_inline_comment() {
             if !comment.is_single_line {

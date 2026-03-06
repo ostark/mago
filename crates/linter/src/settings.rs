@@ -30,6 +30,7 @@ use crate::rule::ExplicitOctalConfig;
 use crate::rule::FileNameConfig;
 use crate::rule::FinalControllerConfig;
 use crate::rule::FunctionNameConfig;
+use crate::rule::GlobalNamespaceImportConfig;
 use crate::rule::HalsteadConfig;
 use crate::rule::IdentityComparisonConfig;
 use crate::rule::IneffectiveFormatIgnoreNextConfig;
@@ -39,15 +40,18 @@ use crate::rule::InstanceofStringableConfig;
 use crate::rule::InterfaceNameConfig;
 use crate::rule::InvalidOpenTagConfig;
 use crate::rule::KanDefectConfig;
+use crate::rule::LineLengthLimitConfig;
 use crate::rule::LiteralNamedArgumentConfig;
 use crate::rule::LoopDoesNotIterateConfig;
 use crate::rule::LowercaseKeywordConfig;
 use crate::rule::LowercaseTypeHintConfig;
 use crate::rule::MiddlewareInRoutesConfig;
 use crate::rule::NoAliasFunctionConfig;
+use crate::rule::NoAlternativeSyntaxConfig;
 use crate::rule::NoAssignInArgumentConfig;
 use crate::rule::NoAssignInConditionConfig;
 use crate::rule::NoBooleanFlagParameterConfig;
+use crate::rule::NoBreakCommentConfig;
 use crate::rule::NoClosingTagConfig;
 use crate::rule::NoDbSchemaChangeConfig;
 use crate::rule::NoDebugSymbolsConfig;
@@ -72,6 +76,7 @@ use crate::rule::NoLiteralPasswordConfig;
 use crate::rule::NoMultiAssignmentsConfig;
 use crate::rule::NoNestedTernaryConfig;
 use crate::rule::NoNoopConfig;
+use crate::rule::NoNullPropertyInitConfig;
 use crate::rule::NoOnlyConfig;
 use crate::rule::NoPhpTagTerminatorConfig;
 use crate::rule::NoProtectedInFinalConfig;
@@ -96,13 +101,16 @@ use crate::rule::NoRequestVariableConfig;
 use crate::rule::NoRolesAsCapabilitiesConfig;
 use crate::rule::NoSelfAssignmentConfig;
 use crate::rule::NoShellExecuteStringConfig;
+use crate::rule::NoShortBoolCastConfig;
 use crate::rule::NoShortOpeningTagConfig;
 use crate::rule::NoShorthandTernaryConfig;
 use crate::rule::NoSprintfConcatConfig;
 use crate::rule::NoTrailingSpaceConfig;
 use crate::rule::NoUnderscoreClassConfig;
 use crate::rule::NoUnescapedOutputConfig;
+use crate::rule::NoUnneededImportAliasConfig;
 use crate::rule::NoUnsafeFinallyConfig;
+use crate::rule::NoUnusedClosureImportConfig;
 use crate::rule::NoVariableVariableConfig;
 use crate::rule::NoVoidReferenceReturnConfig;
 use crate::rule::OptionalParamOrderConfig;
@@ -111,6 +119,7 @@ use crate::rule::PreferArrowFunctionConfig;
 use crate::rule::PreferEarlyContinueConfig;
 use crate::rule::PreferFirstClassCallableConfig;
 use crate::rule::PreferInterfaceConfig;
+use crate::rule::PreferPreIncrementConfig;
 use crate::rule::PreferStaticClosureConfig;
 use crate::rule::PreferViewArrayConfig;
 use crate::rule::PreferWhileLoopConfig;
@@ -134,6 +143,7 @@ use crate::rule::StrStartsWithConfig;
 use crate::rule::StrictAssertionsConfig;
 use crate::rule::StrictBehaviorConfig;
 use crate::rule::StrictTypesConfig;
+use crate::rule::SwitchContinueToBreakConfig;
 use crate::rule::TaggedFixmeConfig;
 use crate::rule::TaggedTodoConfig;
 use crate::rule::TaintedDataToSinkConfig;
@@ -313,11 +323,21 @@ pub struct RulesSettings {
     pub single_class_per_file: RuleSettings<SingleClassPerFileConfig>,
     pub readable_literal: RuleSettings<ReadableLiteralConfig>,
     pub yoda_conditions: RuleSettings<YodaConditionsConfig>,
+    pub line_length_limit: RuleSettings<LineLengthLimitConfig>,
+    pub global_namespace_import: RuleSettings<GlobalNamespaceImportConfig>,
     pub use_wp_functions: RuleSettings<UseWpFunctionsConfig>,
     pub no_direct_db_query: RuleSettings<NoDirectDbQueryConfig>,
     pub no_db_schema_change: RuleSettings<NoDbSchemaChangeConfig>,
     pub no_unescaped_output: RuleSettings<NoUnescapedOutputConfig>,
     pub no_roles_as_capabilities: RuleSettings<NoRolesAsCapabilitiesConfig>,
+    pub prefer_pre_increment: RuleSettings<PreferPreIncrementConfig>,
+    pub switch_continue_to_break: RuleSettings<SwitchContinueToBreakConfig>,
+    pub no_null_property_init: RuleSettings<NoNullPropertyInitConfig>,
+    pub no_unused_closure_import: RuleSettings<NoUnusedClosureImportConfig>,
+    pub no_alternative_syntax: RuleSettings<NoAlternativeSyntaxConfig>,
+    pub no_short_bool_cast: RuleSettings<NoShortBoolCastConfig>,
+    pub no_unneeded_import_alias: RuleSettings<NoUnneededImportAliasConfig>,
+    pub no_break_comment: RuleSettings<NoBreakCommentConfig>,
 }
 
 impl<C: Config> RuleSettings<C> {
